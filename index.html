@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYS_ADMIN // ABDULLAH</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&family=Tektur:wght@400..900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Cyber-Industrial Palette */
+            --bg-base: #030305;
+            --bg-grid: rgba(255, 255, 255, 0.05);
+            --accent-cyan: #00e5ff;
+            --accent-crimson: #ff003c;
+            --text-main: #f4f4f5;
+            --text-muted: #808080;
+            
+            /* Typography */
+            --font-display: 'Tektur', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            /* Spatial & Motion */
+            --spacing-unit: 1rem;
+            --transition-snappy: 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* Custom cursor used instead */
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            overflow-x: hidden;
+            line-height: 1.6;
+            
+            /* Architectural Grid Background */
+            background-image: 
+                linear-gradient(var(--bg-grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center center;
+            position: relative;
+        }
+
+        /* Ambient Vignette overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, transparent 30%, var(--bg-base) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Custom Block Cursor */
+        #cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 15px;
+            height: 24px;
+            background-color: var(--accent-cyan);
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width var(--transition-snappy), height var(--transition-snappy);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top Navigation / System Status */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--bg-grid);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeInDown 1s ease forwards;
+            opacity: 0;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-cyan);
+            animation: pulse 2s infinite;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            padding-top: 4rem;
+        }
+
+        .hero-label {
+            color: var(--accent-crimson);
+            font-weight: 600;
+            letter-spacing: 4px;
+            margin-bottom: 1rem;
+            display: inline-block;
+            opacity: 0;
+            animation: slideRight 0.8s ease forwards 0.4s;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 10vw, 10rem);
+            font-weight: 900;
+            line-height: 0.9;
+            text-transform: uppercase;
+            margin-left: -5px; /* Visual alignment offset */
+            position: relative;
+            opacity: 0;
+            animation: bootUp 1.2s cubic-bezier(0.19, 1, 0.22, 1) forwards 0.6s;
+        }
+
+        /* Glitch effect on hover for the name */
+        .hero-title:hover {
+            color: var(--accent-cyan);
+            text-shadow: 
+                4px 0 var(--accent-crimson),
+                -4px 0 blue;
+        }
+
+        .registration-box {
+            margin-top: 2rem;
+            display: inline-flex;
+            flex-direction: column;
+            border-left: 4px solid var(--accent-cyan);
+            padding: 1rem 1.5rem;
+            background: rgba(0, 229, 255, 0.03);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            animation: slideUp 0.8s ease forwards 1s;
+        }
+
+        .reg-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .reg-number {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* Decorative Marquee */
+        .marquee-container {
+            margin-top: 6rem;
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top: 1px solid var(--accent-crimson);
+            border-bottom: 1px solid var(--accent-crimson);
+            padding: 1rem 0;
+            background: rgba(255, 0, 60, 0.05);
+            overflow: hidden;
+            display: flex;
+            white-space: nowrap;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 1.4s;
+        }
+
+        .marquee-content {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--accent-crimson);
+            animation: scrollMarquee 20s linear infinite;
+        }
+
+        .marquee-content span {
+            margin: 0 2rem;
+        }
+
+        /* DevOps Modules Section */
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 6rem;
+            margin-bottom: 4rem;
+        }
+
+        .module-card {
+            border: 1px solid var(--text-muted);
+            padding: 2rem;
+            position: relative;
+            transition: all var(--transition-snappy);
+            background: rgba(3, 3, 5, 0.8);
+            opacity: 0;
+        }
+
+        .module-card:nth-child(1) { animation: slideUp 0.8s ease forwards 1.6s; }
+        .module-card:nth-child(2) { animation: slideUp 0.8s ease forwards 1.8s; }
+        .module-card:nth-child(3) { animation: slideUp 0.8s ease forwards 2.0s; }
+
+        .module-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.05);
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 0; height: 2px;
+            background: var(--accent-cyan);
+            transition: width 0.4s ease;
+        }
+
+        .module-card:hover::before {
+            width: 100%;
+        }
+
+        .module-id {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .module-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .module-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Keyframes */
+        @keyframes pulse {
+            0% { opacity: 1; box-shadow: 0 0 10px var(--accent-cyan); }
+            50% { opacity: 0.4; box-shadow: 0 0 2px var(--accent-cyan); }
+            100% { opacity: 1; box-shadow: 0 0 10px var(--accent-cyan); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(-40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bootUp {
+            0% { opacity: 0; transform: scaleY(0.01) scaleX(0.8); filter: blur(10px); }
+            50% { opacity: 1; transform: scaleY(1.2) scaleX(1); filter: blur(2px); }
+            100% { opacity: 1; transform: scaleY(1) scaleX(1); filter: blur(0); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes scrollMarquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Terminal typing animation container */
+        .terminal-log {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: right;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 2.5s;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 18vw;
+            }
+            .modules {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor"></div>
+
+    <div class="container">
+        <header>
+            <div class="status-indicator">
+                <div class="dot"></div>
+                <span>SYSTEM_ONLINE // PKT_ZONE</span>
+            </div>
+            <div>V. 1.0.44 // DEPLOY_PROD</div>
+        </header>
+
+        <main class="hero">
+            <span class="hero-label">&gt; USER_AUTHENTICATED</span>
+            
+            <h1 class="hero-title">Abdullah</h1>
+            
+            <div class="registration-box">
+                <span class="reg-label">Unique Identity Hash</span>
+                <span class="reg-number">NUM-BSCS-2023-30</span>
+            </div>
+
+            <div class="terminal-log">
+                <div>[OK] Boot sequence initiated...</div>
+                <div>[OK] Kernel modules loaded.</div>
+                <div>[OK] Pipeline connected.</div>
+                <div style="color: var(--accent-cyan);">&gt; Awaiting command_</div>
+            </div>
+        </main>
+    </div>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <span>CONTINUOUS INTEGRATION</span> •
+            <span>CONTINUOUS DEPLOYMENT</span> •
+            <span>INFRASTRUCTURE AS CODE</span> •
+            <span>KUBERNETES ORCHESTRATION</span> •
+            <span>SITE RELIABILITY</span> •
+            <span>CONTINUOUS INTEGRATION</span> •
+            <span>CONTINUOUS DEPLOYMENT</span> •
+            <span>INFRASTRUCTURE AS CODE</span> •
+            <span>KUBERNETES ORCHESTRATION</span> •
+            <span>SITE RELIABILITY</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="modules">
+            <div class="module-card">
+                <span class="module-id">MOD_01 // PIPELINES</span>
+                <h3 class="module-title">CI/CD Automation</h3>
+                <p class="module-desc">Eliminating manual intervention through rigorous automated testing, integration, and deployment pipelines. Delivering code to production with zero downtime.</p>
+            </div>
+            <div class="module-card">
+                <span class="module-id">MOD_02 // CLOUD</span>
+                <h3 class="module-title">Infrastructure as Code</h3>
+                <p class="module-desc">Treating servers, networks, and databases as version-controlled software. Immutable infrastructure deployed consistently via declarative configurations.</p>
+            </div>
+            <div class="module-card">
+                <span class="module-id">MOD_03 // OBSERVABILITY</span>
+                <h3 class="module-title">Telemetry & Logging</h3>
+                <p class="module-desc">Deep systemic visibility through distributed tracing, metric aggregation, and centralized logging to preemptively detect and resolve anomalies.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Custom Cursor Logic
+        const cursor = document.getElementById('cursor');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Add interactive hover states for the cursor
+        const interactables = document.querySelectorAll('h1, .module-card, .registration-box');
+        
+        interactables.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(2.5)';
+                cursor.style.backgroundColor = 'transparent';
+                cursor.style.border = '1px solid var(--accent-crimson)';
+                cursor.style.borderRadius = '50%';
+            });
+            
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursor.style.backgroundColor = 'var(--accent-cyan)';
+                cursor.style.border = 'none';
+                cursor.style.borderRadius = '0';
+            });
+        });
+    </script>
+</body>
+</html>
